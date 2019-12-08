@@ -1,4 +1,5 @@
 from torch.utils.data import Dataset
+import torch
 import pandas as pd
 import numpy as np
 import math
@@ -25,8 +26,8 @@ class SpotifyDataset(Dataset):
 		session_id = self.session_ids[idx]
 		example = self.sessions[ self.sessions["session_id"] == session_id ].drop(["session_id"], axis=1)
 		encode_state = self.get_encode(example)
-		decode_state, labels = self.get_decode_and_label(example)
-		return encode_state, decode_state, labels
+		decode_state, labels, decode_length = self.get_decode_and_label(example)
+		return encode_state, decode_state, labels, decode_length
 
 	'''
 	Extracts and pads features being passed into the encoder LSTM
@@ -38,13 +39,14 @@ class SpotifyDataset(Dataset):
 		for _ in range(10 - len(encode_state)):
 			zero_pad = pd.DataFrame(np.zeros((1, encode_state.shape[1])), columns=encode_state.columns.values)
 			encode_state = pd.concat([zero_pad, encode_state]).reset_index(drop=True)
-		return encode_state
+		return torch.tensor(encode_state.values, dtype=torch.float64)
 
 	'''
 	Extracts and pads features being passed into the decoder LSTM and their skip_2 labels
 	'''
 	def get_decode_and_label(self, example):
 		num_encode = math.ceil(len(example) / 2)
+		length = len(example) - num_encode
 		decode_data = example.iloc[ num_encode: , : ]
 		decode_ids = pd.DataFrame(decode_data["track_id_clean"])
 		decode_state = decode_ids.merge(self.track_feats, left_on='track_id_clean', right_on='track_id', how='left').drop(["track_id_clean", "track_id"], axis=1)
@@ -53,4 +55,4 @@ class SpotifyDataset(Dataset):
 			zero_pad = pd.DataFrame(np.zeros((1, decode_state.shape[1])), columns=decode_state.columns.values)
 			decode_state = decode_state.append(zero_pad)
 			labels = labels.append(pd.DataFrame(np.zeros((1, 1)), columns=labels.columns.values))
-		return decode_state, labels
+		return torch.tensor(decode_state.values, dtype=torch.float64), torch.tensor(labels.values, dtype=torch.long), length
