@@ -1,5 +1,15 @@
 if __name__ == "__main__":
 
+	import csv
+
+	EPOCH_LOSSES_SAVEPATH = "./models/lstm_epoch_losses.csv"
+	BATCH_LOSSES_SAVEPATH = "./models/lstm_batch_losses.csv"
+
+	def save_list_to_csv(lst, filename):
+		with open(filename, 'w', newline='') as file:
+			wr = csv.writer(file)
+			wr.writerow(lst)
+
 	def evaluate_batch_mean_average_accuracy(y_truth, y_pred):
 		matches = [x == y for (x,y) in zip(y_truth, y_pred)]
 		maas = []
@@ -86,8 +96,10 @@ if __name__ == "__main__":
 	print()
 	print("List of avg. loss across epochs: ")
 	print(epoch_losses)
+	save_list_to_csv(epoch_losses, EPOCH_LOSSES_SAVEPATH)
 	print("List of losses across batches: ")
 	print(batch_losses)
+	save_list_to_csv(batch_losses, BATCH_LOSSES_SAVEPATH)
 
 	### TESTING BLOCK
 	test_model = LSTMEncoderDecoder(encode_size=67, decode_size=29).to(device)
@@ -101,6 +113,6 @@ if __name__ == "__main__":
 	        labels = y.flatten(start_dim=0, end_dim=1).squeeze()
 	        scores = test_model(X_encode, X_decode).flatten(start_dim=0, end_dim=1)
 	        y_pred = torch.argmax(scores, dim=1)
-	        maa = evaluate_batch_mean_average_accuracy(y, y_pred)
+	        maa = evaluate_batch_mean_average_accuracy(labels, y_pred)
 	        total_maa.append(maa)
 	    print("Average batch MAA over test set: {}".format(sum(total_maa) / len(total_maa)))
