@@ -47,8 +47,10 @@ if __name__ == "__main__":
 		total_loss = []
 		dataloader = DataLoader(datasets["train"], batch_size=batch_size, shuffle=True, num_workers=2)
 		for i, (X_encode, X_decode, y) in enumerate(dataloader):
+			if i == 100:
+				break
 			if i % 10 == 0:
-				print("Calculating batch {} / {}".format(i, len(dataloader)))
+				print("Calculating batch {} / {}".format(i, 100))
 			X_encode, X_decode, y = X_encode.to(device), X_decode.to(device), y.to(device)
 			model.train()
 			scores = model(X_encode, X_decode).flatten(start_dim=0, end_dim=1)
@@ -74,6 +76,8 @@ if __name__ == "__main__":
 			dataloader = DataLoader(datasets["test"], batch_size=batch_size, shuffle=False, num_workers=2)
 			total_maa = []
 			for i, (X_encode, X_decode, labels) in enumerate(dataloader):
+				if i == 25:
+					break
 				X_encode, X_decode, y = X_encode.to(device), X_decode.to(device), y.to(device)
 				labels = y.flatten(start_dim=0, end_dim=1).squeeze()
 				scores = model(X_encode, X_decode).flatten(start_dim=0, end_dim=1)
