@@ -10,7 +10,7 @@ if __name__ == "__main__":
 			wr = csv.writer(file)
 			wr.writerow(lst)
 
-	def evaluate_batch_mean_average_accuracy(y_truth, y_pred):
+	def evaluate_batch_mean_average_accuracy(y_truth, y_pred, device):
 		matches = [x == y for (x,y) in zip(y_truth, y_pred)]
 		maas = []
 		for batch in range(0, len(matches), 10):
@@ -20,6 +20,7 @@ if __name__ == "__main__":
 				if matches[batch+i] == 1:
 					num_correct += 1
 					summ += (num_correct / (i+1)) / 10
+			summ = torch.tensor(summ).to(device)
 			maas.append(summ)
 		return sum(maas) / len(maas)
 
@@ -69,7 +70,10 @@ if __name__ == "__main__":
 	                model.train()
 	                scores = model(X_encode, X_decode).flatten(start_dim=0, end_dim=1)
 	                labels = y.flatten(start_dim=0, end_dim=1).squeeze()
-	                loss = loss_fn(scores, labels)
+	                cross_ent_loss = loss_fn(scores, labels)
+	                y_pred = torch.argmax(scores, dim=1)
+	                maa = evaluate_batch_mean_average_accuracy(labels, y_pred, device)
+	                loss = cross_ent_loss - maa
 	                loss.backward()
 	                optimizer.step()
 	                optimizer.zero_grad()
@@ -80,7 +84,7 @@ if __name__ == "__main__":
 	                scores = model(X_encode, X_decode).flatten(start_dim=0, end_dim=1)
 	                labels = y.flatten(start_dim=0, end_dim=1).squeeze()
 	                y_pred = torch.argmax(scores, dim=1)
-	                maa = evaluate_batch_mean_average_accuracy(labels, y_pred)
+	                maa = evaluate_batch_mean_average_accuracy(labels, y_pred, device)
 	                total_maa.append(maa)
 	        if phase == 'train':
 	            epoch_loss = sum(total_loss) / len(total_loss)
@@ -113,6 +117,6 @@ if __name__ == "__main__":
 	        labels = y.flatten(start_dim=0, end_dim=1).squeeze()
 	        scores = test_model(X_encode, X_decode).flatten(start_dim=0, end_dim=1)
 	        y_pred = torch.argmax(scores, dim=1)
-	        maa = evaluate_batch_mean_average_accuracy(labels, y_pred)
+	        maa = evaluate_batch_mean_average_accuracy(labels, y_pred, device)
 	        total_maa.append(maa)
 	    print("Average batch MAA over test set: {}".format(sum(total_maa) / len(total_maa)))
