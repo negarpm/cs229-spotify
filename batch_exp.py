@@ -98,11 +98,9 @@ if __name__ == "__main__":
 	                best_maa = epoch_maa
 	    print()
 	print()
-	print("List of avg. loss across epochs: ")
-	print(epoch_losses)
+	print("Saved avg. losses across epochs")
 	save_list_to_csv(epoch_losses, EPOCH_LOSSES_SAVEPATH)
-	print("List of losses across batches: ")
-	print(batch_losses)
+	print("Saved losses across batches")
 	save_list_to_csv(batch_losses, BATCH_LOSSES_SAVEPATH)
 
 	### TESTING BLOCK
