@@ -95,8 +95,11 @@ class TransformerModel(nn.Module):
         #src = self.encoder(src) * math.sqrt(self.ninp)
         src = self.pos_encoder(src)
         enc_hidden_output = self.transformer_encoder(src, self.src_mask)
+        print("enc output", enc_hidden_output)
         output = self.transformer_decoder(trg, enc_hidden_output)
+        print("dec output", output)
         output = self.final_linear(output)
+        print("output", output)
         
 #         _, (h_n, c_n) = self.encoder(X_encode)
 # 		hidden_states, _ = self.decoder(X_decode, (h_n, c_n))
