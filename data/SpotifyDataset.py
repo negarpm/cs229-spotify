@@ -36,7 +36,11 @@ class SpotifyDataset(Dataset):
 		num_encode = math.ceil(len(example) / 2)
 		encode_data = example.iloc[ 0:num_encode, : ]
 		encode_state = encode_data.merge(self.track_feats, left_on='track_id_clean', right_on='track_id', how='left').drop(["track_id_clean", "track_id"], axis=1)
-		return torch.tensor(encode_state.values, dtype=torch.float32)
+		encode_tensor =  torch.tensor(encode_state.values, dtype=torch.float32)
+		source = torch.zeros(10, encode_tensor.shape[1]+1)
+		source[:, :encode_tensor.shape[1]] = encode_tensor
+		#print("encode before", encode_tensor[0], "encode after", source[0])
+		return source
 
 	'''
 	Extracts and pads features being passed into the decoder LSTM and their skip_2 labels
@@ -47,4 +51,9 @@ class SpotifyDataset(Dataset):
 		decode_ids = pd.DataFrame(decode_data["track_id_clean"])
 		decode_state = decode_ids.merge(self.track_feats, left_on='track_id_clean', right_on='track_id', how='left').drop(["track_id_clean", "track_id"], axis=1)
 		labels = decode_data["skip_2"].to_frame()
-		return torch.tensor(decode_state.values, dtype=torch.float32), torch.tensor(labels.values, dtype=torch.long)
+		decode_tensor = torch.tensor(decode_state.values, dtype=torch.float32)
+		source = torch.zeros(10, decode_tensor.shape[1]+1)
+		source[:, :decode_tensor.shape[1]] = decode_tensor
+		#print("decode_before", decode_tensor[0], "decode_after", source[0])
+		decode_tensor_label = (source, torch.tensor(labels.values, dtype=torch.long))
+		return decode_tensor_label

@@ -63,7 +63,7 @@ class TransformerModel(nn.Module):
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         
         decoder_layer = nn.TransformerDecoderLayer(n_input2, nhead, nhid, dropout)
-        transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers)
+        self.transformer_decoder = nn.TransformerDecoder(decoder_layer, nlayers)
 #         memory = torch.rand(10, 32, 512)
 #         tgt = torch.rand(20, 32, 512)
 #         out = transformer_decoder(tgt, memory)
