@@ -19,7 +19,7 @@ if __name__ == "__main__":
 	from models.LSTMEncoderDecoder import LSTMEncoderDecoder
 
 	device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-	WEIGHT_PATH = "./models/weight__decay_X.pt"
+	WEIGHT_PATH = "./models/weight_decay_X.pt"
 
 	from data.SpotifyDataset import SpotifyDataset
 
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 		total_loss = []
 		dataloader = DataLoader(datasets["train"], batch_size=batch_size, shuffle=True, num_workers=2)
 		for i, (X_encode, X_decode, y) in enumerate(dataloader):
-			if i % 50 == 0:
+			if i % 10 == 0:
 				print("Calculating batch {} / {}".format(i, len(dataloader)))
 			X_encode, X_decode, y = X_encode.to(device), X_decode.to(device), y.to(device)
 			model.train()
