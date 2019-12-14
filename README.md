@@ -8,6 +8,6 @@ Master contains all the code for the gbm, LSTM, Bi-LSTM model.
 
 This branch contains the code for our novel "feature-forcing" transformer
 
---> transformer_traditional
+--> transformer_tradit
 
 This branch contains the code for the traditional nlp based transformer that we developed
